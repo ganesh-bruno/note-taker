@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+// Use a simpler approach with global fallback
 import config from '../config';
 
 const SimpleForm = () => {
@@ -19,8 +19,11 @@ const SimpleForm = () => {
     setSuccess(false);
     
     try {
+      // Use the global axios from CDN that we included in index.html
+      const axiosInstance = window.axios || await import('axios').then(module => module.default);
+      
       // Send data to backend API
-      const response = await axios.post(`${API_URL}/submit`, { name: inputValue });
+      const response = await axiosInstance.post(`${API_URL}/submit`, { name: inputValue });
       
       // Update state with response (PostgreSQL response format)
       setSubmittedValue(response.data.name);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+// Use a simpler approach with global fallback
 import config from '../config';
 
 const SubmissionsList = () => {
@@ -14,7 +14,10 @@ const SubmissionsList = () => {
   const fetchSubmissions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/submissions`);
+      // Use the global axios from CDN that we included in index.html
+      const axiosInstance = window.axios || await import('axios').then(module => module.default);
+      
+      const response = await axiosInstance.get(`${API_URL}/submissions`);
       setSubmissions(response.data);
       setError('');
     } catch (error) {
