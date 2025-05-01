@@ -6,6 +6,7 @@ const SubmissionsList = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [debugInfo, setDebugInfo] = useState('');
 
   // Get API URL from config
   const { API_URL } = config;
@@ -13,16 +14,41 @@ const SubmissionsList = () => {
   // Function to fetch submissions from backend
   const fetchSubmissions = async () => {
     setLoading(true);
+    setDebugInfo(`Attempting to fetch from: ${API_URL}/submissions`);
+    
     try {
       // Use the global axios from CDN that we included in index.html
       const axiosInstance = window.axios || await import('axios').then(module => module.default);
       
-      const response = await axiosInstance.get(`${API_URL}/submissions`);
+      // Add more detailed error handling
+      const response = await axiosInstance.get(`${API_URL}/submissions`, {
+        // Add headers to help with CORS
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        // Handle errors properly
+        validateStatus: null
+      });
+      
+      // Add debug information
+      setDebugInfo(`Response status: ${response.status}, Data: ${JSON.stringify(response.data)}`);
+      
+      if (response.status !== 200) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+      
       setSubmissions(response.data);
       setError('');
     } catch (error) {
       console.error('Error fetching submissions:', error);
-      setError('Failed to load submissions');
+      setError(`Failed to load submissions: ${error.message}`);
+      setDebugInfo(`Error: ${error.toString()}, ${error.message || ''}`);
+      
+      // Try to extract more error details if available
+      if (error.response) {
+        setDebugInfo(prev => `${prev}, Response: ${JSON.stringify(error.response.data)}, Status: ${error.response.status}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -53,7 +79,14 @@ const SubmissionsList = () => {
         </div>
       )}
       
-      {!loading && submissions.length === 0 && (
+      {/* Debug information - visible in development */}
+      {debugInfo && (
+        <div className="p-3 bg-gray-100 text-gray-700 rounded-md mb-4 text-xs overflow-auto max-h-32">
+          <strong>Debug:</strong> {debugInfo}
+        </div>
+      )}
+      
+      {!loading && submissions.length === 0 && !error && (
         <p className="text-gray-500">No submissions yet.</p>
       )}
       
