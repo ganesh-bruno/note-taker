@@ -15,7 +15,13 @@ const PORT = process.env.PORT || 5000;
 // CORS configuration - restrict to your Vercel frontend in production
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://note-taker-hw50fwavs-devgans-projects.vercel.app'] // Your actual Vercel frontend URL
+    ? [
+        'https://note-taker-hw50fwavs-devgans-projects.vercel.app',
+        'https://note-taker-p1dz3rcfh-devgans-projects.vercel.app',
+        'https://note-taker-4b1flnoh1-devgans-projects.vercel.app',
+        'https://note-taker-hptnijqn8-devgans-projects.vercel.app',
+        'https://note-taker.vercel.app' // Custom domain if you set one up
+      ]
     : ['http://localhost:5173', 'http://localhost:3000'],
   optionsSuccessStatus: 200
 };
